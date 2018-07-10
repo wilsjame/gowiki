@@ -7,6 +7,9 @@ import (
 	"net/http"
 )
 
+// Template caching.
+var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
+
 // Page defined by a title and body.
 type Page struct {
 	Title string
@@ -32,12 +35,7 @@ func loadPage(title string) (*Page, error) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	t, err := template.ParseFiles(tmpl + ".html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = t.Execute(w, p)
+	err := templates.ExecuteTemplate(w, tmpl+".html", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
